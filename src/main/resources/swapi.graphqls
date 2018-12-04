@@ -1,0 +1,73 @@
+type Query {
+    # Lists all of the heroes
+    heroes: [Character]
+    # If episode omitted, returns the hero of the whole saga. If provided, returns the hero of that particular episode
+    hero(episode: Episode): Character
+    # Lists all of the humans
+    humans: [Character]
+    # Find human by id
+    human(id: String!): Character
+    # Lists all of the droids
+    droids: [Character]
+    # Find droid by id
+    droid(id: String!): Character
+    # Lists all of the characters
+    characters: [Character]
+    # Find character by id
+    character(id: String!): Character
+}
+
+# One of the films in the Star Wars Trilogy
+enum Episode {
+    # Released in 1977
+    NewHope,
+    # Released in 1980
+    TheEmpireStrikesBack,
+    # Released in 1983
+    ReturnOfTheJedi
+}
+
+enum Species {
+    Human,
+    Protocol,
+    Astromech
+}
+
+# A character in the Star Wars Trilogy
+type Character {
+    # The id of the character
+    id: String!
+    # The name of the character
+    name: String
+    # The species of the character
+    species: Species
+    # Which movies they appear in
+    appearsIn: [Episode]
+    # The friends of the character, or an empty list if they have none
+    friends: [Character]
+    # The home planet of the character, or null if unknown
+    homePlanet: String
+}
+
+input CharacterInput {
+    # The name of the character
+    name: String
+    # The species of the character
+    species: Species
+    # Which movies they appear in
+    appearsIn: [Episode]
+    # The friends of the character, or an empty list if they have none
+    friends: [CharacterReference]
+    # The home planet of the character, or null if unknown
+    homePlanet: String
+}
+
+input CharacterReference {
+    # The id of the character
+    id: String!
+}
+
+type Mutation {
+    # Creates a new character
+    create(input: CharacterInput!): Character
+}
