@@ -1,70 +1,53 @@
 package io.eganjs.graphql.example.resolvers
 
 import com.coxautodev.graphql.tools.GraphQLQueryResolver
-import io.eganjs.graphql.example.models.Character
 import io.eganjs.graphql.example.models.Episode
-import io.eganjs.graphql.example.models.Species.*
-import io.eganjs.graphql.example.repositories.CharactersRepository
-import io.eganjs.graphql.example.repositories.HeroesRepository
+import io.eganjs.graphql.example.models.SpeciesType
+import io.eganjs.graphql.example.queriables.QueriableCharacter
+import io.eganjs.graphql.example.services.HeroesService
+import io.eganjs.graphql.example.services.QueriableCharactersService
 import org.springframework.stereotype.Component
-import java.util.*
 
 @Component
 class Query(
-    private val charactersRepository: CharactersRepository,
-    private val heroesRepository: HeroesRepository
+    private val queriableCharactersService: QueriableCharactersService,
+    private val heroesService: HeroesService
 ) : GraphQLQueryResolver {
 
-    fun heroes(): List<Character> =
-        heroesRepository
+    fun characters(): List<QueriableCharacter> =
+        queriableCharactersService
             .findAll()
-            .mapNotNull { charactersRepository.findById(it.character.id).orElse(null) }
 
-    fun hero(episode: Episode?): Character? {
-        val chosenEpisode = (episode ?: Episode.NewHope)
-        return heroesRepository
-            .findAll()
-            .filter { it.episode === chosenEpisode }
-            .mapNotNull { charactersRepository.findById(it.id).orElse(null) }
-            .firstOrNull()
-    }
-
-    fun humans(): List<Character> =
-        charactersRepository
-            .findAll()
-            .filter(Character::isHuman)
-
-    fun human(id: UUID): Character? =
-        charactersRepository
+    fun character(id: String): QueriableCharacter? =
+        queriableCharactersService
             .findById(id)
-            .filter(Character::isHuman)
-            .orElse(null)
 
-    fun droids(): List<Character> =
-        charactersRepository
+    fun humans(): List<QueriableCharacter> =
+        queriableCharactersService
             .findAll()
-            .filter(Character::isDroid)
+            .filter { it.species.type === SpeciesType.Biological }
 
-    fun droid(id: UUID): Character? =
-        charactersRepository
+    fun human(id: String): QueriableCharacter? =
+        queriableCharactersService
             .findById(id)
-            .filter(Character::isDroid)
-            .orElse(null)
+            ?.takeIf { it.species.type === SpeciesType.Biological }
 
-    fun characters(): List<Character> =
-        charactersRepository
+    fun droids(): List<QueriableCharacter> =
+        queriableCharactersService
+            .findAll()
+            .filter { it.species.type === SpeciesType.Synthetic }
+
+    fun droid(id: String): QueriableCharacter? =
+        queriableCharactersService
+            .findById(id)
+            ?.takeIf { it.species.type === SpeciesType.Synthetic }
+
+    fun heroes(): List<QueriableCharacter> =
+        heroesService
             .findAll()
 
-    fun character(id: UUID): Character? =
-        charactersRepository
-            .findById(id)
-            .orElse(null)
+    fun hero(episode: Episode?): QueriableCharacter? =
+        heroesService
+            .findByEpisode(episode ?: Episode.NewHope)
 
-}
-
-fun Character.isHuman() = species === Human
-
-fun Character.isDroid() = when (species) {
-    Protocol, Astromech -> true
-    else -> false
 }

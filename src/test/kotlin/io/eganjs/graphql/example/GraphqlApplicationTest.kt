@@ -5,7 +5,7 @@ import org.junit.runner.RunWith
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner
 
 @RunWith(SpringJUnit4ClassRunner::class)
-class ApplicationTest {
+class GraphqlApplicationTest {
 
     @Test
     fun `when the application starts, then it should not fall over`() = Unit
